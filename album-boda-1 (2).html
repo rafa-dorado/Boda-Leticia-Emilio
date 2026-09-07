@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>Álbum de la boda</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Jost:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ivory:#F7F3EC;
+    --sage:#5C6B54;
+    --sage-dark:#3E4A38;
+    --gold:#B8935A;
+    --line:#DCD4C2;
+    --ink:#2B2A26;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--ivory);
+    color:var(--ink);
+    font-family:'Jost',sans-serif;
+    min-height:100vh;
+    display:flex;
+    align-items:flex-start;
+    justify-content:center;
+    padding:0 0 60px;
+  }
+  .wrap{
+    width:100%;
+    max-width:480px;
+    padding:0 24px;
+  }
+  header{
+    padding:56px 0 28px;
+    text-align:center;
+    border-bottom:1px solid var(--line);
+    margin-bottom:32px;
+  }
+  .eyebrow{
+    font-size:13px;
+    letter-spacing:.04em;
+    color:var(--sage);
+    margin:0 0 10px;
+  }
+  h1{
+    font-family:'Cormorant Garamond',serif;
+    font-weight:600;
+    font-size:44px;
+    line-height:1.05;
+    margin:0 0 14px;
+    color:var(--sage-dark);
+  }
+  .date{
+    font-size:14px;
+    color:#7A7669;
+    margin:0;
+  }
+  .intro{
+    font-size:16px;
+    line-height:1.6;
+    color:#4A473F;
+    text-align:center;
+    margin:0 0 36px;
+  }
+  .drop{
+    border:1.5px dashed var(--sage);
+    border-radius:4px;
+    padding:36px 20px;
+    text-align:center;
+    background:#FFFEFC;
+    transition:border-color .2s ease, background .2s ease;
+  }
+  .drop.drag{
+    border-color:var(--gold);
+    background:#FBF6EC;
+  }
+  .drop p{
+    margin:0 0 20px;
+    font-size:15px;
+    color:#5B5748;
+  }
+  input[type=file]{ display:none; }
+  .btn{
+    display:inline-block;
+    background:var(--sage-dark);
+    color:var(--ivory);
+    font-family:'Jost',sans-serif;
+    font-size:15px;
+    letter-spacing:.02em;
+    padding:14px 30px;
+    border-radius:2px;
+    border:none;
+    cursor:pointer;
+    text-decoration:none;
+  }
+  .btn:active{ background:var(--sage); }
+  .btn-secondary{
+    background:none;
+    color:var(--sage-dark);
+    border:1px solid var(--sage-dark);
+    margin-top:10px;
+  }
+  #previewGrid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:8px;
+    margin-top:18px;
+  }
+  #previewGrid img{
+    width:100%;
+    aspect-ratio:1;
+    object-fit:cover;
+    border-radius:2px;
+  }
+  .queue-item{ position:relative; }
+  .status{
+    position:absolute;
+    inset:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:rgba(43,42,38,.45);
+    color:#fff;
+    font-size:11px;
+    border-radius:2px;
+  }
+  .status.done{ background:rgba(92,107,84,.55); }
+  .actions{
+    margin-top:24px;
+    text-align:center;
+  }
+  .footer-note{
+    text-align:center;
+    font-size:13px;
+    color:#8A8677;
+    margin-top:28px;
+    line-height:1.6;
+  }
+  .thanks{
+    display:none;
+    text-align:center;
+    padding:60px 0;
+  }
+  .thanks h2{
+    font-family:'Cormorant Garamond',serif;
+    font-size:32px;
+    color:var(--sage-dark);
+    margin:0 0 12px;
+  }
+  .thanks p{ color:#5B5748; font-size:15px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <p class="eyebrow">Os invitamos a compartir el recuerdo</p>
+    <h1 id="coupleNames">Nombre &amp; Nombre</h1>
+    <p class="date" id="weddingDate">DD de mes, AAAA</p>
+  </header>
+
+  <div id="uploadView">
+    <p class="intro">Todas las fotos que hagáis hoy son parte de nuestra historia.<br>Subidlas aquí, se guardan directamente en nuestro álbum.</p>
+
+    <div class="drop" id="dropZone">
+      <p>Toca para elegir o hacer una foto</p>
+      <button class="btn" type="button" id="pickBtn">Añadir fotos</button>
+      <input type="file" id="fileInput" accept="image/*" multiple>
+      <div id="previewGrid"></div>
+    </div>
+
+    <div class="actions">
+      <button class="btn" type="button" id="sendBtn" style="display:none;">Enviar fotos</button>
+      <button class="btn btn-secondary" type="button" id="addMoreBtn" style="display:none;">Añadir más fotos</button>
+    </div>
+
+    <p class="footer-note">Sin descargas, sin cuentas.<br>Si algo falla, volved a intentarlo — las fotos ya subidas quedan a salvo.</p>
+  </div>
+
+  <div class="thanks" id="thanksView">
+    <h2>¡Gracias!</h2>
+    <p>Vuestras fotos ya están en el álbum.</p>
+    <button class="btn btn-secondary" type="button" id="uploadMoreBtn">Subir más fotos</button>
+  </div>
+
+</div>
+
+<script>
+/* ======================================================
+   CONFIGURACIÓN — rellena esto antes de publicar la página
+   ====================================================== */
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzNUuC32lCJyWrKwM7u9sw20LYd7T8IiXFiDfEcmshxBQKBZ1z9pb3JB2F7vDBK2wj65A/exec";
+/* ====================================================== */
+
+document.getElementById('coupleNames').textContent = "Leticia & Emilio";
+document.getElementById('weddingDate').textContent = "12 de Septiembre de 2026";
+
+const fileInput   = document.getElementById('fileInput');
+const pickBtn     = document.getElementById('pickBtn');
+const dropZone    = document.getElementById('dropZone');
+const previewGrid = document.getElementById('previewGrid');
+const addMoreBtn  = document.getElementById('addMoreBtn');
+const sendBtn     = document.getElementById('sendBtn');
+const uploadView  = document.getElementById('uploadView');
+const thanksView  = document.getElementById('thanksView');
+const uploadMoreBtn = document.getElementById('uploadMoreBtn');
+
+let queue = []; // { file, statusEl, state: 'queued'|'uploading'|'done'|'error' }
+let uploadedCount = 0;
+
+pickBtn.addEventListener('click', () => fileInput.click());
+
+fileInput.addEventListener('change', (e) => {
+  handleFiles(e.target.files);
+  fileInput.value = "";
+});
+
+['dragenter','dragover'].forEach(evt =>
+  dropZone.addEventListener(evt, (e) => { e.preventDefault(); dropZone.classList.add('drag'); })
+);
+['dragleave','drop'].forEach(evt =>
+  dropZone.addEventListener(evt, (e) => { e.preventDefault(); dropZone.classList.remove('drag'); })
+);
+dropZone.addEventListener('drop', (e) => {
+  if (e.dataTransfer.files.length) handleFiles(e.dataTransfer.files);
+});
+
+function handleFiles(fileList) {
+  const files = Array.from(fileList).filter(f => f.type.startsWith('image/'));
+  if (!files.length) return;
+
+  addMoreBtn.style.display = 'inline-block';
+  sendBtn.style.display = 'inline-block';
+
+  files.forEach(file => {
+    const item = document.createElement('div');
+    item.className = 'queue-item';
+    const img = document.createElement('img');
+    img.src = URL.createObjectURL(file);
+    const status = document.createElement('div');
+    status.className = 'status';
+    status.textContent = 'En cola';
+    item.appendChild(img);
+    item.appendChild(status);
+    previewGrid.appendChild(item);
+
+    queue.push({ file, statusEl: status, state: 'queued' });
+  });
+
+  updateSendBtnLabel();
+}
+
+function updateSendBtnLabel() {
+  const pending = queue.filter(q => q.state === 'queued' || q.state === 'error').length;
+  sendBtn.textContent = pending > 1 ? `Enviar ${pending} fotos` : 'Enviar foto';
+}
+
+function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result.split(',')[1]);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+async function uploadToCloudinary(entry) {
+  const { file, statusEl } = entry;
+  entry.state = 'uploading';
+  statusEl.textContent = 'Subiendo…';
+  try {
+    const base64 = await fileToBase64(file);
+    const res = await fetch(SCRIPT_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' }, // evita preflight CORS con Apps Script
+      body: JSON.stringify({
+        file: base64,
+        mimeType: file.type,
+        filename: `${Date.now()}_${file.name}`
+      })
+    });
+    const json = await res.json();
+    if (!json.success) throw new Error(json.error || 'upload failed');
+
+    statusEl.textContent = '✓';
+    statusEl.classList.add('done');
+    entry.state = 'done';
+    uploadedCount++;
+  } catch (err) {
+    statusEl.textContent = 'Error — toca para reintentar';
+    statusEl.style.cursor = 'pointer';
+    statusEl.classList.remove('done');
+    entry.state = 'error';
+    statusEl.onclick = () => {
+      statusEl.onclick = null;
+      uploadToCloudinary(entry);
+    };
+  }
+}
+
+sendBtn.addEventListener('click', async () => {
+  const pending = queue.filter(q => q.state === 'queued' || q.state === 'error');
+  if (!pending.length) return;
+
+  sendBtn.disabled = true;
+  sendBtn.textContent = 'Enviando…';
+
+  await Promise.all(pending.map(entry => uploadToCloudinary(entry)));
+
+  sendBtn.disabled = false;
+  checkAllDone();
+});
+
+function checkAllDone() {
+  const stillPending = queue.some(q => q.state === 'queued' || q.state === 'uploading' || q.state === 'error');
+  if (!stillPending && uploadedCount > 0) {
+    setTimeout(() => {
+      uploadView.style.display = 'none';
+      thanksView.style.display = 'block';
+    }, 700);
+  } else {
+    updateSendBtnLabel();
+  }
+}
+
+uploadMoreBtn.addEventListener('click', () => {
+  thanksView.style.display = 'none';
+  uploadView.style.display = 'block';
+  previewGrid.innerHTML = '';
+  queue = [];
+  uploadedCount = 0;
+  sendBtn.style.display = 'none';
+  addMoreBtn.style.display = 'none';
+});
+
+addMoreBtn.addEventListener('click', () => fileInput.click());
+</script>
+</body>
+</html>
